@@ -67,7 +67,7 @@ The workflow runs on:
 
 ## Contact
 
-**Email**: shreyak541@gmail.com
+**Email**: 24f3004473@ds.study.iitm.ac.in
 
 ---
 
