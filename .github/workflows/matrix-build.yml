@@ -1,0 +1,73 @@
+name: Multi-Platform Matrix Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  matrix-build:
+    name: Build on ${{ matrix.os }} with Node ${{ matrix.node-version }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [16, 18, 20]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: matrix-eeefeec
+        run: echo "Building for ${{ matrix.os }} with Node.js ${{ matrix.node-version }}"
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Display system information
+        run: |
+          echo "OS: ${{ matrix.os }}"
+          echo "Node version: ${{ matrix.node-version }}"
+          echo "Runner OS: ${{ runner.os }}"
+          node --version
+          npm --version
+      
+      - name: Generate build artifact
+        run: |
+          echo "Build Information" > build-output.txt
+          echo "==================" >> build-output.txt
+          echo "Operating System: ${{ matrix.os }}" >> build-output.txt
+          echo "Node.js Version: ${{ matrix.node-version }}" >> build-output.txt
+          echo "Build Time: $(date)" >> build-output.txt
+          echo "Runner OS: ${{ runner.os }}" >> build-output.txt
+          echo "Build ID: ${{ github.run_id }}" >> build-output.txt
+          echo "Commit SHA: ${{ github.sha }}" >> build-output.txt
+        shell: bash
+      
+      - name: Create additional build artifacts
+        run: |
+          mkdir -p build-artifacts
+          echo '{"os": "${{ matrix.os }}", "node": "${{ matrix.node-version }}", "status": "success", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > build-artifacts/metadata.json
+          echo "Build completed successfully for ${{ matrix.os }} - Node ${{ matrix.node-version }}" > build-artifacts/status.txt
+        shell: bash
+      
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-eeefeec-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: |
+            build-output.txt
+            build-artifacts/
+          retention-days: 7
+      
+      - name: Build summary
+        run: |
+          echo "✅ Build completed successfully!"
+          echo "Platform: ${{ matrix.os }}"
+          echo "Node.js: ${{ matrix.node-version }}"
+          echo "Artifact: build-eeefeec-${{ matrix.os }}-node${{ matrix.node-version }}"
